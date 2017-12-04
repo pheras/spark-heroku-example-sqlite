@@ -42,8 +42,8 @@ public class Main {
 //			statement.executeUpdate("create table person (id integer, name string)");
 			statement.executeUpdate("create table person (id integer, name text)");
 
-			statement.executeUpdate("insert into person values(1, 'zipi')");
-			statement.executeUpdate("insert into person values(2, 'zape')");
+			statement.executeUpdate("insert into person values(1, 'PIN')");
+			statement.executeUpdate("insert into person values(2, 'PON')");
 			ResultSet rs = statement.executeQuery("select * from person");
 			while (rs.next()) {
 				// read the result set
