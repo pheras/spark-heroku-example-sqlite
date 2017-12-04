@@ -30,7 +30,7 @@ public class MockitoTutorialTest
 		//act
 		String result=i.next()+" "+i.next();
 		//assert
-		assertEquals("Hello World", result);
+		assertEquals("Helo World", result);
 	}
 	// This example creates a mock iterator and makes it return “Hello” the first time method next() is called. 
 	// Calls after that return “World”. Then we can run normal assertions.
