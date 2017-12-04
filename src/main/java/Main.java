@@ -12,35 +12,24 @@ import java.net.URI;
 
 public class Main {
 	
-	// heroku postgress
-	private static Connection getConnection() throws URISyntaxException, SQLException {
-	    URI dbUri = new URI(System.getenv("DATABASE_URL"));
 
-	    String username = dbUri.getUserInfo().split(":")[0];
-	    String password = dbUri.getUserInfo().split(":")[1];
-	    String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
-
-	    return DriverManager.getConnection(dbUrl, username, password);
-	}
 
 	public static String doWork() throws ClassNotFoundException, URISyntaxException {
 		String result = new String();
 		
 		// load the sqlite-JDBC driver using the current class loader
-//		Class.forName("org.sqlite.JDBC");
+		Class.forName("org.sqlite.JDBC");
 
 		Connection connection = null;
 		try {
 			// create a database connection
-//			connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
-			connection = getConnection();
+			connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
 			
 			Statement statement = connection.createStatement();
-//			statement.setQueryTimeout(30); // set timeout to 30 sec.
+			statement.setQueryTimeout(30); // set timeout to 30 sec.
 
 			statement.executeUpdate("drop table if exists person");
-//			statement.executeUpdate("create table person (id integer, name string)");
-			statement.executeUpdate("create table person (id integer, name text)");
+			statement.executeUpdate("create table person (id integer, name string)");
 
 			statement.executeUpdate("insert into person values(1, 'PIN')");
 			statement.executeUpdate("insert into person values(2, 'PON')");
