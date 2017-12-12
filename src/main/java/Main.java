@@ -28,8 +28,8 @@ public class Main {
 			Statement statement = connection.createStatement();
 			statement.setQueryTimeout(30); // set timeout to 30 sec.
 
-			statement.executeUpdate("drop table if exists person");
-			statement.executeUpdate("create table person (id integer, name string)");
+//			statement.executeUpdate("drop table if exists person");
+//			statement.executeUpdate("create table person (id integer, name string)");
 
 			statement.executeUpdate("insert into person values(1, 'Mortadelo')");
 			statement.executeUpdate("insert into person values(2, 'Filemon')");
