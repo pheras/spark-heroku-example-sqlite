@@ -83,11 +83,14 @@ public class Main {
 
 	// heroku postgress
 
-	URI dbUri = new URI(System.getenv("DATABASE_URL"));
-	String username = dbUri.getUserInfo().split(":")[0];
-	String password = dbUri.getUserInfo().split(":")[1];
-	String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
-	connection = DriverManager.getConnection(dbUrl, username, password);
+	String dbUrl = System.getenv("JDBC_DATABASE_URL");
+	connection = DriverManager.getConnection(dbUrl);
+
+// 	URI dbUri = new URI(System.getenv("DATABASE_URL"));
+// 	String username = dbUri.getUserInfo().split(":")[0];
+// 	String password = dbUri.getUserInfo().split(":")[1];
+// 	String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
+// 	connection = DriverManager.getConnection(dbUrl, username, password);
 	
 
 
