@@ -97,6 +97,10 @@ public class Main {
 	// Retrieves the file uploaded through the /upload_films HTML form
 	// Creates table and stores uploaded file in a two-columns table
 	post("/upload", (req, res) -> {
+		// Added so that Heroku does not break connection after 30s 
+		// https://devcenter.heroku.com/articles/limits
+		res.header("Content-Transfer-Encoding", "chunked");
+
 		req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/tmp"));
 		String result = "File uploaded!";
 		try (InputStream input = req.raw().getPart("uploaded_films_file").getInputStream()) { 
