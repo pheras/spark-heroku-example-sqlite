@@ -113,7 +113,7 @@ public class Main {
 			BufferedReader br = new BufferedReader(isr);
 			String s;
 			while ((s = br.readLine()) != null) {
-			    System.out.println(s);
+			    // System.out.println(s);
 
 			    // Tokenize the film name and then the actors, separated by "/"
 			    StringTokenizer tokenizer = new StringTokenizer(s, "/");
