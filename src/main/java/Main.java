@@ -17,6 +17,10 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import java.net.URISyntaxException;
+import java.net.URI;
+
+
 // This code is quite dirty. Use it just as a hello world example 
 // to learn how to use JDBC and SparkJava to upload a file, store 
 // it in a DB, and do a SQL SELECT query
@@ -30,7 +34,7 @@ public class Main {
     // using lambda expressions
     public static String doSelect(Request request, Response response) {
 	return select (connection, request.params(":table"), 
-                                   request.params(":film"));
+		       request.params(":film"));
     }
 
     public static String select(Connection conn, String table, String film) {
@@ -52,7 +56,6 @@ public class Main {
 	    } catch (SQLException e) {
 	    System.out.println(e.getMessage());
 	}
-	
 	return result;
     }
     
@@ -70,12 +73,24 @@ public class Main {
     }
 
     public static void main(String[] args) throws 
-	ClassNotFoundException, SQLException {
+	ClassNotFoundException, SQLException, URISyntaxException {
 	port(getHerokuAssignedPort());
 	
 	// Connect to SQLite sample.db database
 	// connection will be reused by every query in this simplistic example
-	connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
+	// connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
+
+
+	// heroku postgress
+	URI dbUri = new URI(System.getenv("DATABASE_URL"));
+	String username = dbUri.getUserInfo().split(":")[0];
+	String password = dbUri.getUserInfo().split(":")[1];
+	String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + dbUri.getPath();
+	connection = DriverManager.getConnection(dbUrl, username, password);
+	
+
+
+
 
 	// In this case we use a Java 8 method reference to specify
 	// the method to be called when a GET /:table/:film HTTP request
@@ -86,15 +101,11 @@ public class Main {
 
 	// In this case we use a Java 8 Lambda function to process the
 	// GET /upload_films HTTP request, and we return a form
-	get("/upload_films", (req, res) -> {
-	    // Added so that Heroku does not break connection after 30s 
-	    // https://devcenter.heroku.com/articles/limits
-	    res.header("Content-Transfer-Encoding", "chunked");
-
-	    return "<form action='/upload' method='post' enctype='multipart/form-data'>" 
+	get("/upload_films", (req, res) -> 
+	    "<form action='/upload' method='post' enctype='multipart/form-data'>" 
 	    + "    <input type='file' name='uploaded_films_file' accept='.txt'>"
-		+ "    <button>Upload file</button>" + "</form>";
-        });
+	    + "    <button>Upload file</button>" + "</form>"
+	    );
 	// You must use the name "uploaded_films_file" in the call to
 	// getPart to retrieve the uploaded file. See next call:
 
@@ -104,37 +115,38 @@ public class Main {
 	post("/upload", (req, res) -> {
 
 		req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/tmp"));
-		String result = "File uploaded!";
-		try (InputStream input = req.raw().getPart("uploaded_films_file").getInputStream()) { 
+
+		try (InputStream input = req.raw().getPart("uploaded_films_file").getInputStream()){ 
 			// getPart needs to use the same name "uploaded_films_file" used in the form
 
 			// Prepare SQL to create table
 			Statement statement = connection.createStatement();
-			statement.setQueryTimeout(30); // set timeout to 30 sec.
+			// statement.setQueryTimeout(30); // set timeout to 30 sec.
 			statement.executeUpdate("drop table if exists films");
-			statement.executeUpdate("create table films (film string, actor string)");
-
+			// statement.executeUpdate("create table films (film string, actor string)");
+			statement.executeUpdate("create table films (film text, actor text)");
+			    
 			// Read contents of input stream that holds the uploaded file
 			InputStreamReader isr = new InputStreamReader(input);
 			BufferedReader br = new BufferedReader(isr);
 			String s;
 			while ((s = br.readLine()) != null) {
-			    // System.out.println(s);
-
+			    System.out.println(s);
+				
 			    // Tokenize the film name and then the actors, separated by "/"
 			    StringTokenizer tokenizer = new StringTokenizer(s, "/");
-
+				
 			    // First token is the film name(year)
 			    String film = tokenizer.nextToken();
-
+				
 			    // Now get actors and insert them
 			    while (tokenizer.hasMoreTokens()) {
 				insert(connection, film, tokenizer.nextToken());
 			    }
 			}
-			input.close();
 		    }
-		return result;
+		System.out.println("File Uploaded!");
+		return "File uploaded!";
 	    });
 
     }
