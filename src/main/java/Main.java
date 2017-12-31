@@ -86,10 +86,15 @@ public class Main {
 
 	// In this case we use a Java 8 Lambda function to process the
 	// GET /upload_films HTTP request, and we return a form
-	get("/upload_films", (req, res) -> 
-	    "<form action='/upload' method='post' enctype='multipart/form-data'>" 
+	get("/upload_films", (req, res) -> {
+	    // Added so that Heroku does not break connection after 30s 
+	    // https://devcenter.heroku.com/articles/limits
+	    res.header("Content-Transfer-Encoding", "chunked");
+
+	    return "<form action='/upload' method='post' enctype='multipart/form-data'>" 
 	    + "    <input type='file' name='uploaded_films_file' accept='.txt'>"
-	    + "    <button>Upload file</button>" + "</form>");
+		+ "    <button>Upload file</button>" + "</form>";
+        });
 	// You must use the name "uploaded_films_file" in the call to
 	// getPart to retrieve the uploaded file. See next call:
 
@@ -97,9 +102,6 @@ public class Main {
 	// Retrieves the file uploaded through the /upload_films HTML form
 	// Creates table and stores uploaded file in a two-columns table
 	post("/upload", (req, res) -> {
-		// Added so that Heroku does not break connection after 30s 
-		// https://devcenter.heroku.com/articles/limits
-		res.header("Content-Transfer-Encoding", "chunked");
 
 		req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/tmp"));
 		String result = "File uploaded!";
